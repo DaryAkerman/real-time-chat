@@ -1,0 +1,68 @@
+{% extends 'index.html' %}
+
+{% block title %}Public Chat{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <h2>Public Chat Room</h2>
+    <div id="chat-box" class="chat-box">
+        <div id="chat-messages" class="chat-messages">
+            {% for message in messages %}
+                <p class="message">
+                    <span class="sender">{{ message.user.username }}:</span>
+                    {{ message.message_text }}
+                    <span class="timestamp">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                </p>
+            {% endfor %}
+        </div>
+    </div>
+    <form id="chat-form" class="chat-form">
+        <input type="text" id="message-input" placeholder="Type a message..." required>
+        <button type="submit">Send</button>
+    </form>
+</div>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const socket = io();
+    const chatMessages = document.getElementById('chat-messages');
+    let canSend = true; // Spam prevention flag
+
+    // Send message
+    const chatForm = document.getElementById('chat-form');
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!canSend) {
+            alert('Please wait a second before sending another message.');
+            return;
+        }
+
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value;
+        socket.emit('send_message', { message: message });
+        messageInput.value = '';
+
+        // Set a timeout to re-enable sending after 1 second
+        canSend = false;
+        setTimeout(() => {
+            canSend = true;
+        }, 1000);
+    });
+
+    // Receive new message
+    socket.on('new_message', (data) => {
+        const newMessage = document.createElement('p');
+        newMessage.className = 'message';
+        newMessage.innerHTML = `<span class="sender">${data.sender}:</span> ${data.message} <span class="timestamp">${data.timestamp}</span>`;
+        chatMessages.appendChild(newMessage);
+
+        // Check if there are more than 15 messages
+        const messages = chatMessages.querySelectorAll('.message');
+        if (messages.length > 15) {
+            messages[0].remove(); // Remove the oldest message
+        }
+
+        // Scroll to the bottom of the chat box
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+</script>
+{% endblock %}

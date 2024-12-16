@@ -1,0 +1,19 @@
+.env
+chat_project_doc.docx
+notes.txt
+#secured variables for now.
+/infrastructure/environments/dev/terraform.tfvars
+
+__pycache__
+*.tfstate
+*.tfstate.*
+*.tfplan
+override.tf
+override.tf.json
+*.override.tf
+*.override.tf.json
+.terraformrc
+terraform.rc
+.terraform/
+.terraform.lock.*
+venv

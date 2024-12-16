@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>{% block title %}Real-Time Chat{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>Real-Time Chat</h1>
+        <nav>
+            {% if session.get('user') %}
+                <form action="{{ url_for('logout') }}" method="POST" style="display: inline;">
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('login') }}"><button type="button">Login</button></a>
+                <a href="{{ url_for('register') }}"><button type="button">Register</button></a>
+            {% endif %}
+        </nav>
+    </header>
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
