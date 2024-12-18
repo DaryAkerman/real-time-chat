@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "flask-app.fullname" . }}
+  labels:
+    {{- include "flask-app.labels" . | nindent 4 }}
+  annotations:
+    {{- if .Values.service.sessionAffinityTimeout }}
+    service.beta.kubernetes.io/session-affinity-config: |
+      {
+        "clientIP": {
+          "timeoutSeconds": {{ .Values.service.sessionAffinityTimeout }}
+        }
+      }
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+  selector:
+    {{- include "flask-app.selectorLabels" . | nindent 4 }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}

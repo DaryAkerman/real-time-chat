@@ -14,3 +14,8 @@ output "postgresql_connection" {
   value         = "postgresql://${module.postgresql.admin_username}:${module.postgresql.admin_password}@${module.postgresql.postgresql_hostname}/${module.postgresql.database_name}"  
   sensitive     = true
 }
+
+output "kube_config" {
+  value         = module.aks.kube_config
+  sensitive     = true
+}

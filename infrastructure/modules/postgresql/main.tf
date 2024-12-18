@@ -9,6 +9,7 @@ resource "azurerm_postgresql_flexible_server" "postgresql" {
   storage_mb              = var.storage_mb
   delegated_subnet_id     = null
   tags                    = var.tags
+  zone                    = "1"
 }
 
 resource "azurerm_postgresql_flexible_server_database" "db" {

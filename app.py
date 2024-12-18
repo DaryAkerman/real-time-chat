@@ -1,24 +1,80 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 import os
+from urllib.parse import urlparse, quote, urlunparse
 from logging_config import setup_logging
 from extensions import db
 from models import User, Message
 
+
 # Load environment variables
 load_dotenv()
 
+# Path to the mounted secrets directory
+SECRETS_PATH = "/mnt/secrets-store"
+
+def read_secret(file_name):
+    try:
+        with open(os.path.join(SECRETS_PATH, file_name), "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        print(f"Secret file {file_name} not found!")
+        return None
+
+raw_postgresql_uri = read_secret("POSTGRESQL-URI")
+print(raw_postgresql_uri)
+
+def fix_postgresql_uri(raw_uri):
+    """Properly encodes the PostgreSQL URI components."""
+    if raw_uri:
+        try:
+            # Parse the full URI
+            parsed = urlparse(raw_uri)
+
+            # Encode username and password
+            encoded_username = quote(parsed.username)
+            encoded_password = quote(parsed.password)
+
+            # Rebuild the netloc with encoded credentials
+            netloc = f"{encoded_username}:{encoded_password}@{parsed.hostname}"
+            if parsed.port:
+                netloc += f":{parsed.port}"
+
+            # Reconstruct the URI
+            fixed_uri = urlunparse((
+                parsed.scheme,       # postgresql
+                netloc,              # Encoded credentials + host + port
+                parsed.path,         # Database name
+                parsed.params,       # Params (if any)
+                parsed.query,        # Query (if any)
+                parsed.fragment      # Fragment (if any)
+            ))
+
+            return fixed_uri
+        except Exception as e:
+            print(f"Error fixing PostgreSQL URI: {e}")
+            return raw_uri
+    return None
+
+POSTGRESQL_URI = fix_postgresql_uri(raw_postgresql_uri)
+print(f"POSTGRESQL_URI: {POSTGRESQL_URI}")
+SECRET_KEY = read_secret("SECRET-KEY")
+INSTRUMENTATION_KEY = read_secret("INSTRUMENTATION-KEY")
+
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('POSTGRESQL_URI')
+app.secret_key = SECRET_KEY
+app.config['SQLALCHEMY_DATABASE_URI'] = POSTGRESQL_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize logging
-logger = setup_logging(os.getenv('INSTRUMENTATION_KEY'))
+logger = setup_logging(INSTRUMENTATION_KEY)
 
 # Initialize database
 db.init_app(app)
@@ -124,4 +180,5 @@ def logout():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+    socketio.run(app, host="0.0.0.0", port=5000)
+

@@ -1,7 +1,8 @@
 Flask
 Flask-SQLAlchemy
 Werkzeug
-psycopg2
+psycopg2-binary
 python-dotenv
 opencensus-ext-azure
 flask-socketio
+eventlet
