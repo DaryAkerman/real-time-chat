@@ -1,3 +1,9 @@
 server:
   service:
     type: LoadBalancer
+
+configs:
+  repositories:
+    - url: "https://github.com/DaryAkerman/real-time-chat"
+      username: ""
+      password: ""

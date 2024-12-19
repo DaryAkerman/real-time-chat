@@ -30,6 +30,6 @@ variable "namespace_dependency" {
 
 variable "values_map" {
   description = "Map of values to pass to the Helm chart."
-  type        = map(any)
+  type        = any
   default     = {}
 }

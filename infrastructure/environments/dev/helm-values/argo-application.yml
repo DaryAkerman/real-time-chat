@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: real-time-chat
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/DaryAkerman/real-time-chat
+    targetRevision: HEAD
+    path: ./helm/flask-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true

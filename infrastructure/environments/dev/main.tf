@@ -72,7 +72,7 @@ module "aks" {
 # Key Vault Module
 module "keyvault" {
   source                     = "../../modules/keyvault"
-  keyvault_name              = "MyKeyVaultdaryakerrss"
+  keyvault_name              = "MyKeyVaultdaryakerrsz"
   location                   = module.resource_group.location
   resource_group_name        = module.resource_group.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id
