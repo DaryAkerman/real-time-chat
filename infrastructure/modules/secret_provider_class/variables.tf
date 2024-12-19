@@ -12,3 +12,7 @@ variable "user_assigned_identity_id" {
   description = "The User Assigned Identity ID."
   type        = string
 }
+
+variable "namespace" {
+  type = string
+}

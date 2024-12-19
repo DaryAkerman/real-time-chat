@@ -72,12 +72,17 @@ module "aks" {
 # Key Vault Module
 module "keyvault" {
   source                     = "../../modules/keyvault"
-  keyvault_name              = "MyKeyVaultdaryakerrs"
+  keyvault_name              = "MyKeyVaultdaryakerrss"
   location                   = module.resource_group.location
   resource_group_name        = module.resource_group.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   object_id                  = module.aks.aks_identity_object_id
   kubelet_object_id          = module.aks.kubelet_identity_object_id
+}
+
+module "dev_namespace" {
+  source          = "../../modules/namespace"
+  namespace_name  = "dev"
 }
 
 # Secret Provider Class module
@@ -86,6 +91,7 @@ module "secret_provider_class" {
   keyvault_name             = module.keyvault.keyvault_name
   tenant_id                 = data.azurerm_client_config.current.tenant_id
   user_assigned_identity_id = module.aks.kubelet_identity_id
+  namespace                 = "dev" 
 }
 
 module "secrets" {

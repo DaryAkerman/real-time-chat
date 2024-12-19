@@ -7,7 +7,7 @@ resource "kubernetes_manifest" "secret_provider_class" {
     "kind"       = "SecretProviderClass"
     "metadata" = {
       "name"      = "azure-kv-secrets"
-      "namespace" = "default"
+      "namespace" = var.namespace
     }
     "spec" = {
       "provider" = "azure"
