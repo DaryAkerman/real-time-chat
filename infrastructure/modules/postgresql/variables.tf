@@ -46,3 +46,12 @@ variable "tags" {
   default     = {}
 }
 
+variable "delegated_subnet_id" {
+  description = "The ID of the delegated subnet for PostgreSQL."
+  type        = string
+}
+
+variable "private_dns_zone_id" {
+  description = "The ID of the private DNS zone for PostgreSQL."
+  type        = string
+}

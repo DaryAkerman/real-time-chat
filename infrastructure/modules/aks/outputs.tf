@@ -24,7 +24,7 @@ output "kube_config" {
 }
 
 output "cluster_name" {
-  value = azurerm_kubernetes_cluster.aks.name
+  value       = azurerm_kubernetes_cluster.aks.name
   description = "The name of the AKS cluster."
 }
 
@@ -32,4 +32,3 @@ output "subnet_id" {
   description = "The subnet ID used by the AKS cluster"
   value       = azurerm_kubernetes_cluster.aks.default_node_pool[0].vnet_subnet_id
 }
-

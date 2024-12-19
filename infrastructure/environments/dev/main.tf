@@ -12,6 +12,19 @@ module "resource_group" {
   }
 }
 
+module "network" {
+  source                  = "../../modules/network"
+  vnet_name               = "vnet"
+  location                = module.resource_group.location
+  resource_group_name     = module.resource_group.name
+  address_space           = ["10.0.0.0/16"]
+  aks_subnet_name         = "aks-subnet"
+  aks_subnet_prefixes     = ["10.0.1.0/24"]
+  postgresql_subnet_name  = "postgresql-subnet"
+  postgresql_subnet_prefixes = ["10.0.2.0/24"]
+  postgresql_nsg_name     = "postgresql-nsg"
+}
+
 # Application Insights Module
 module "application_insights" {
   source              = "../../modules/application_insights"
@@ -26,17 +39,19 @@ module "application_insights" {
 
 # PostgreSQL Module
 module "postgresql" {
-  source              = "../../modules/postgresql"
-  name                = "real-time-chat-db-dev-darytest"
-  location            = module.resource_group.location
-  resource_group_name = module.resource_group.name
-  admin_username      = var.admin_username
-  admin_password      = var.admin_password
-  database_name       = "real_time_chat_db"
+  source                  = "../../modules/postgresql"
+  name                    = "real-time-chat-db-dev-darytest"
+  location                = module.resource_group.location
+  resource_group_name     = module.resource_group.name
+  admin_username          = var.admin_username
+  admin_password          = var.admin_password
+  database_name           = "real_time_chat_db"
   tags = {
-    environment = var.namespace
-    project     = "real-time-chat"
+    environment           = var.namespace
+    project               = "real-time-chat"
   }
+  delegated_subnet_id     = module.network.postgresql_subnet_id
+  private_dns_zone_id     = module.network.private_dns_zone_id
 }
 
 # AKS Module
@@ -49,12 +64,15 @@ module "aks" {
   node_count          = 3
   vm_size             = "Standard_DS2_v2"
   tags                = { Environment = "Dev" }
+  subnet_id           = module.network.aks_subnet_id
+  min_node_count      = 1
+  max_node_count      = 5
 }
 
 # Key Vault Module
 module "keyvault" {
   source                     = "../../modules/keyvault"
-  keyvault_name              = "MyKeyVaultdaryakerrr"
+  keyvault_name              = "MyKeyVaultdaryakerrs"
   location                   = module.resource_group.location
   resource_group_name        = module.resource_group.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id

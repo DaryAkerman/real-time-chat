@@ -26,4 +26,3 @@ output "postgresql_connection" {
     database_name     = var.database_name
   }
 }
-
