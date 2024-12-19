@@ -97,3 +97,19 @@ module "secrets" {
   }
   keyvault_id = module.keyvault.keyvault_id
 }
+
+module "argocd_namespace" {
+  source          = "../../modules/namespace"
+  namespace_name  = "argocd"
+}
+
+module "argocd_helm" {
+  source               = "../../modules/helm"
+  release_name         = "argocd"
+  namespace            = module.argocd_namespace.namespace_name
+  chart                = "argo-cd"
+  repository           = "https://argoproj.github.io/argo-helm"
+  chart_version        = "5.18.1"
+  namespace_dependency = module.argocd_namespace
+  values_map           = yamldecode(file("${path.module}/helm-values/argo-values.yaml"))
+}
