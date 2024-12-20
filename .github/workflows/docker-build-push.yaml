@@ -1,4 +1,4 @@
-name: Build and Deploy Docker Image
+name: Build, Deploy Docker Image, and Update Helm Chart
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
       id: docker_build
       run: |
         IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/real-time-chat-project
-        VERSION=${{ github.run_number }}  # Use GitHub Actions run number as the version
+        VERSION=${{ github.run_number }}
         docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION .
         echo "IMAGE=$IMAGE_NAME" >> $GITHUB_ENV
         echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -36,6 +36,22 @@ jobs:
       run: |
         docker push ${{ env.IMAGE }}:latest
         docker push ${{ env.IMAGE }}:${{ env.VERSION }}
+
+    - name: Update values.yaml
+      if: github.ref_name == 'main'
+      run: |
+        FILE_PATH=helm/flask-app/values.yaml
+        IMAGE_TAG=${{ env.VERSION }}
+        sed -i "s/tag: .*/tag: \"$IMAGE_TAG\"/" $FILE_PATH
+
+    - name: Commit and Push Updated values.yaml
+      if: github.ref_name == 'main'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add helm/flask-app/values.yaml
+        git commit -m "Update image tag in Helm values.yaml to ${IMAGE_TAG}"
+        git push origin ${{ github.ref_name }}
 
     - name: Create Pull Request (Other Branches)
       if: github.ref_name != 'main'
