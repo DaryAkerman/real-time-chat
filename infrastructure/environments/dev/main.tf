@@ -57,7 +57,7 @@ module "postgresql" {
 # AKS Module
 module "aks" {
   source              = "../../modules/aks"
-  cluster_name        = "chatClusterr"
+  cluster_name        = "chat-cluster"
   location            = module.resource_group.location
   resource_group_name = module.resource_group.name
   dns_prefix          = "myAKS"
@@ -72,7 +72,7 @@ module "aks" {
 # Key Vault Module
 module "keyvault" {
   source                     = "../../modules/keyvault"
-  keyvault_name              = "MyKeyVaultdaryakerrsz"
+  keyvault_name              = "chat-key-vault-dary"
   location                   = module.resource_group.location
   resource_group_name        = module.resource_group.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id

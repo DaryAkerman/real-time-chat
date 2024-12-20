@@ -12,7 +12,6 @@ provider "azurerm" {
   subscription_id = ""
 }
 
-# Kubernetes Provider Configuration
 provider "kubernetes" {
   host                   = module.aks.kube_config.host
   client_certificate     = base64decode(module.aks.kube_config.client_certificate)
