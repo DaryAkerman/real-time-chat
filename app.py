@@ -177,10 +177,6 @@ def logout():
         flash('You have been logged out.', 'success')
     return redirect(url_for('index'))
 
-@app.route('/test')
-def test_argo():
-    return "TESTING ARGO"
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
