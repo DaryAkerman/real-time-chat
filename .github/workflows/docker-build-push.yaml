@@ -25,13 +25,17 @@ jobs:
     - name: Build Docker Image
       id: docker_build
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/real-time-chat-project:${{ github.sha }} .
-        echo "IMAGE=${{ secrets.DOCKER_USERNAME }}/real-time-chat-project:${{ github.sha }}" >> $GITHUB_ENV
+        IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/real-time-chat-project
+        VERSION=${{ github.run_number }}  # Use GitHub Actions run number as the version
+        docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION .
+        echo "IMAGE=$IMAGE_NAME" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Push Docker Image (Main Branch Only)
       if: github.ref_name == 'main'
       run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/real-time-chat-project:${{ github.sha }}
+        docker push ${{ env.IMAGE }}:latest
+        docker push ${{ env.IMAGE }}:${{ env.VERSION }}
 
     - name: Create Pull Request (Other Branches)
       if: github.ref_name != 'main'
@@ -40,6 +44,10 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: "Build Docker image for branch ${{ github.ref_name }}"
         title: "Build Docker image for branch ${{ github.ref_name }}"
-        body: "This pull request includes the Docker image build for branch ${{ github.ref_name }}."
+        body: |
+          This pull request includes the Docker image build for branch ${{ github.ref_name }}.
+          Built versions:
+          - `latest`
+          - `${{ env.VERSION }}`
         base: main
         branch: ${{ github.ref_name }}
