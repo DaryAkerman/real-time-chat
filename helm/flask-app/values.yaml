@@ -6,7 +6,7 @@ replicaCount: 3
 
 image:
   repository: winterzone2/real-time-chat-project
-  tag: latest
+  tag: "6"
   pullPolicy: Always
 
 imagePullSecrets: []
